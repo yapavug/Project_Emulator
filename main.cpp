@@ -1,18 +1,18 @@
 #include <iostream>
 #include <array>
 #include <map>
+#include <vector>
 
 using namespace std;
 
 
-
-void show_registers(map<string, int>& registers)
-{
+void show_registers(const map<string, int>& registers, const vector<string>& order) {
 	cout << "Состояния регистров:\n";
-	cout << "r0:\t" << registers["r0"] << "\n" << "r1:\t" << registers["r1"] << "\n" << "r2:\t" << registers["r2"] << "\n" << "r3:\t" << registers["r3"] << "\n"
-		<< "rax:\t" << registers["rax"] << "\n" << "rbx:\t" << registers["rbx"] << "\n" << "rcx:\t" << registers["rcx"] << "\n" << "rdi:\t" << registers["rdi"] << "\n"
-		<< "eflags:\t" << registers["eflags"] << "\n";
+	for (const auto& key : order) {
+		cout << key << ":\t" << registers.at(key) << "\n";
+	}
 }
+
 
 
 int main()
@@ -99,7 +99,9 @@ int main()
 
 	cout << endl << endl << endl;
 
-	show_registers(regs);
+	vector<string> order = { "r0", "r1", "r2", "r3", "rax", "rbx", "rcx", "rdi", "eflags" };
+
+	show_registers(regs, order);
 
 	return 0;
 }
