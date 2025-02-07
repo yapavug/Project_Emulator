@@ -103,5 +103,32 @@ int main()
 
 	show_registers(regs, order);
 
+	cout << endl << endl;
+
+	int pc = 0;		//счетчик команд - регистр
+
+	vector<int> instruction;
+
+	while (pc < instruct_mem.size())
+	{
+		// Копируем первые 4 элемента
+		instruction.assign(instruct_mem.begin() + pc, instruct_mem.begin() + pc + 4);
+		// Выводим результат
+		cout << "Выполняется команда:\n";
+
+		for (int elem : instruction) {
+			cout << elem << " ";
+		}
+		
+		cout << "\n";
+		pc += 4;
+	}
+
+
+
+
+
+
+
 	return 0;
 }
