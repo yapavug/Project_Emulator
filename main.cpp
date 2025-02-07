@@ -1,5 +1,6 @@
 #include <iostream>
 #include <array>
+#include <map>
 
 using namespace std;
 
@@ -58,6 +59,33 @@ int main()
 	for (int i = 0; i < instruct_mem.size(); ++i) {
 		cout<< instruct_mem[i]<<" ";
 	}
+
+	map<string, int> REGISTERS;
+	REGISTERS["r0"] = 7;
+	REGISTERS["r1"] = 8;
+	REGISTERS["r2"] = 9;
+	REGISTERS["r3"] = 10;
+	REGISTERS["r4"] = 11;
+	REGISTERS["r5"] = 12;
+	REGISTERS["rax"] = 13;
+	REGISTERS["rbx"] = 14;
+	REGISTERS["rcx"] = 15;
+	REGISTERS["rdi"] = 16;
+
+	map<string, int> regs = {
+
+		{"r0", 0},		//Перед началом цикла хранит адрес начала данных в памяти data_memory ([0])
+		{"r1", 0},		//Перед началом цикла в него записывается первый эл-т массива - количество элементов в массиве  (10)
+		{"r2", 0},		//Перед началом цикла хранит смещение, необходимое для доступа ко второму эл-ту массива данных в data_memory (1)
+		{"r3", 0},		//Перед началом цикла хранит адрес второго элемента массива в памяти data_memory ([1])
+		{"rax", 0},		//Сначала хранит первый элемент массива (15) - текущий максимум
+		{"rbx", 0},		//Хранит текущий элемент
+		{"rcx", 0},		//Счетчик
+		{"rdi", 0},		//В него запсывается максимум после hlt
+		{"eflags", 0},	//Флаг для условных переходов
+
+	};
+
 
 	return 0;
 }
