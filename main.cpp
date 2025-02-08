@@ -14,6 +14,115 @@ void show_registers(const map<string, int>& registers, const vector<string>& ord
 }
 
 
+int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, const map<string, int>& REGISTERS, array<int, 2048>& data_mem) {
+	int opcode = instr.at(0);
+	int operand1 = instr.at(1);
+	int operand2 = instr.at(2);
+	int operand3 = instr.at(3);
+
+	if (opcode == 1) {  // mov
+		// Определяем целевой регистр
+		string dest_reg;
+		for (const auto& reg : REGISTERS) {
+			if (reg.second == operand1) {
+				dest_reg = reg.first;
+				break;
+			}
+		}
+
+		if (dest_reg.empty()) {
+			cerr << "Ошибка: неизвестный регистр для mov: " << operand1 << endl;
+			return -1;
+		}
+
+		// Определяем источник данных
+		if (operand2 == 0) {  // Специальный случай: адрес data_memory
+			regs[dest_reg] = 0;  // Записываем адрес начала data_memory
+		}
+		else if (operand2 >= 100 && operand2 < 170) {  // Косвенная адресация
+			string src_reg;
+			for (const auto& reg : REGISTERS) {
+				if (reg.second == (operand2 - 100)) {
+					src_reg = reg.first;
+					break;
+				}
+			}
+			if (src_reg.empty()) {
+				cerr << "Ошибка: неизвестный регистр для косвенной адресации: " << (operand2 - 100) << endl;
+				return -1;
+			}
+			regs[dest_reg] = data_mem[regs[src_reg]];  // Загружаем значение из памяти
+		}
+		else if (operand2 >= 170 && operand2 <= 255) {  // Непосредственное значение
+			regs[dest_reg] = operand2 - 170;  // Записываем непосредственное значение
+		}
+		else {  // Регистр
+			string src_reg;
+			for (const auto& reg : REGISTERS) {
+				if (reg.second == operand2) {
+					src_reg = reg.first;
+					break;
+				}
+			}
+			if (src_reg.empty()) {
+				cerr << "Ошибка: неизвестный регистр для mov: " << operand2 << endl;
+				return -1;
+			}
+			regs[dest_reg] = regs[src_reg];  // Копируем значение из другого регистра
+		}
+	}
+
+	if (opcode == 2) //add
+	{
+
+		// Определяем целевой регистр
+		string dest_reg;
+		for (const auto& reg : REGISTERS) {
+			if (reg.second == operand1) {
+				dest_reg = reg.first;
+				break;
+			}
+		}
+
+
+
+	}
+
+
+	if (opcode == 9) //hlt 
+	{
+		return 3;
+	}
+
+	if (opcode == 10) //load
+	{
+		// Определяем целевой регистр
+		string dest_reg;
+		for (const auto& reg : REGISTERS) {
+			if (reg.second == operand1) {
+				dest_reg = reg.first;
+				break;
+			}
+		}
+
+		string src_reg;
+		for (const auto& reg : REGISTERS) {
+			if (reg.second == operand2 - 100) {
+				src_reg = reg.first;
+				break;
+			}
+		}
+
+		regs[dest_reg] = data_mem[regs[src_reg]];  // Загружаем значение из памяти
+
+
+	}
+
+	return 0;  // Успешное выполнение
+}
+
+
+
 
 int main()
 {
@@ -109,18 +218,34 @@ int main()
 
 	vector<int> instruction;
 
-	while (pc < instruct_mem.size())
-	{
+	while (pc < instruct_mem.size()) {
 		// Копируем первые 4 элемента
 		instruction.assign(instruct_mem.begin() + pc, instruct_mem.begin() + pc + 4);
-		// Выводим результат
-		cout << "Выполняется команда:\n";
 
+		// Выводим состояние pc
+		cout << "pc: " << pc << endl;
+
+		// Выводим выполняемую команду
+		cout << "Выполняется команда: ";
 		for (int elem : instruction) {
 			cout << elem << " ";
 		}
-		
-		cout << "\n";
+		cout << endl;
+
+		// Выполняем команду
+		int result = execute_machine_instruction(instruction, regs, REGISTERS, data_mem);
+		if (result == -1) {
+			cerr << "Ошибка выполнения команды. Прерывание." << endl;
+			break;
+		}
+		else if (result == 3)
+		{
+			break;
+		}
+		// Выводим состояние регистров после выполнения команды
+		show_registers(regs, order);
+
+		// Увеличиваем счетчик команд
 		pc += 4;
 	}
 
