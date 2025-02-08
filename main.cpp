@@ -2,9 +2,11 @@
 #include <array>
 #include <map>
 #include <vector>
+#include <cstdlib> // Поключил для exit(0)
 
 using namespace std;
 
+const int NONE_OPCODE = 255;
 
 void show_registers(const map<string, int>& registers, const vector<string>& order) {
 	cout << "Состояния регистров:\n";
@@ -84,14 +86,175 @@ int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, cons
 			}
 		}
 
+		if (operand2 > 170)
+		{
+			regs[dest_reg] += (operand2 - 170);
+		}
+		else
+		{
+			// Определяем второй регистр
+			string src1;
+			for (const auto& reg : REGISTERS) {
+				if (reg.second == operand2) {
+					src1 = reg.first;
+					break;
+				}
+			}
 
+			// Определяем третий регистр
+			string src2;
+			for (const auto& reg : REGISTERS) {
+				if (reg.second == operand3) {
+					src2 = reg.first;
+					break;
+				}
+			}
+
+			regs[dest_reg] = regs[src1] + regs[src2];
+		}
+
+	}
+
+	if (opcode == 3) //sub
+	{
+
+		// Определяем целевой регистр
+		string dest_reg;
+		for (const auto& reg : REGISTERS) {
+			if (reg.second == operand1) {
+				dest_reg = reg.first;
+				break;
+			}
+		}
+
+		// Определяем второй регистр
+		string src1;
+		for (const auto& reg : REGISTERS) {
+			if (reg.second == operand2) {
+				src1 = reg.first;
+				break;
+			}
+		}
+
+		if (170 <= operand3 <= 255)
+		{
+			regs[dest_reg] = regs[src1] - (operand3 - 170);
+		}
+		else
+		{
+
+			// Определяем третий регистр
+			string src2;
+			for (const auto& reg : REGISTERS) {
+				if (reg.second == operand3) {
+					src2 = reg.first;
+					break;
+				}
+			}
+
+			regs[dest_reg] = regs[src1] - regs[src2];
+
+		}
+
+	}
+
+	if (opcode == 4) //cmp
+	{
+		regs["eflags"] = 2;
+
+		// Определяем второй регистр
+		string src1;
+		for (const auto& reg : REGISTERS) {
+			if (reg.second == operand1) {
+				src1 = reg.first;
+				break;
+			}
+		}
+
+		if (operand2 == NONE_OPCODE)
+		{
+			if (regs[src1] == 0)
+			{
+				regs["eflags"] = 0;
+			}
+		}
+		else
+		{
+			// Определяем третий регистр
+			string src2;
+			for (const auto& reg : REGISTERS) {
+				if (reg.second == operand2) {
+					src2 = reg.first;
+					break;
+				}
+			}
+
+			if (regs[src1] > regs[src2])
+			{
+				regs["eflags"] = 1;
+			}
+
+			else
+			{
+				if (regs[src1] < regs[src2])
+				{
+					regs["eflags"] = -1;
+				}
+				else
+				{
+					regs["eflags"] = 0;
+				}
+			}
+
+		}
+	}
+
+
+	if (opcode == 5) //je
+	{
+		
+		if (regs["eflags"] == 0)
+		{
+			return operand1;
+		}
+
+	}
+
+	if (opcode == 6) //jle
+	{
+
+		if (regs["eflags"] <= 0)
+		{
+			return operand1;
+		}
+
+	}
+
+	if (opcode == 7) //jmp
+	{
+
+		return operand1;
 
 	}
 
 
+	if (opcode == 8) //dec
+	{
+		// Определяем целевой регистр
+		string dest_reg;
+		for (const auto& reg : REGISTERS) {
+			if (reg.second == operand1) {
+				dest_reg = reg.first;
+				break;
+			}
+		}
+		regs[dest_reg] = regs[dest_reg] - 1;
+	}
+
 	if (opcode == 9) //hlt 
 	{
-		return 3;
+		cout << "Максимальный элемент:	" << regs["rdi"] << endl;
+		exit(0);
 	}
 
 	if (opcode == 10) //load
@@ -130,7 +293,7 @@ int main()
 
 	array<int, 2048> data_mem = { 0 };
 
-	int initial_data[] = { 10, 15, 21, 28, 29, 33, 88, 45, 47, 97, 99 };
+	int initial_data[] = { 10, 15, 21, 28, 29, 33, 88, 100, 47, 97, 99 };
 
 	for (int i = 0; i <= initial_data[0]; ++i)
 	{
@@ -222,9 +385,6 @@ int main()
 		// Копируем первые 4 элемента
 		instruction.assign(instruct_mem.begin() + pc, instruct_mem.begin() + pc + 4);
 
-		// Выводим состояние pc
-		cout << "pc: " << pc << endl;
-
 		// Выводим выполняемую команду
 		cout << "Выполняется команда: ";
 		for (int elem : instruction) {
@@ -233,20 +393,29 @@ int main()
 		cout << endl;
 
 		// Выполняем команду
-		int result = execute_machine_instruction(instruction, regs, REGISTERS, data_mem);
-		if (result == -1) {
-			cerr << "Ошибка выполнения команды. Прерывание." << endl;
-			break;
-		}
-		else if (result == 3)
-		{
-			break;
-		}
+		int jump_to = execute_machine_instruction(instruction, regs, REGISTERS, data_mem);
+
 		// Выводим состояние регистров после выполнения команды
 		show_registers(regs, order);
 
-		// Увеличиваем счетчик команд
-		pc += 4;
+		if (jump_to == -1) {
+			cerr << "Ошибка выполнения команды. Прерывание." << endl;
+			break;
+		}
+		else
+		{
+			if (jump_to > 0)
+			{
+				pc = (jump_to - 1) * 4;
+			}
+			else
+			{
+				pc += 4;
+			}
+		}
+
+		// Выводим состояние pc
+		cout << "pc: " << pc << endl;
 	}
 
 
