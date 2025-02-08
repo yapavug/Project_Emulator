@@ -2,21 +2,20 @@
 #include <array>
 #include <map>
 #include <vector>
-#include <cstdlib> // Поключил для exit(0)
+#include <cstdlib> // Подключил для exit(0)
 
-using namespace std;
 
 const int NONE_OPCODE = 255;
 
-void show_registers(const map<string, int>& registers, const vector<string>& order) {
-	cout << "Состояния регистров:\n";
+void show_registers(const std::map<std::string, int>& registers, const std::vector<std::string>& order) {
+	std::cout << "Состояния регистров:\n";
 	for (const auto& key : order) {
-		cout << key << ":\t" << registers.at(key) << "\n";
+		std::cout << key << ":\t" << registers.at(key) << "\n";
 	}
 }
 
 
-int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, const map<string, int>& REGISTERS, array<int, 2048>& data_mem) {
+int execute_machine_instruction(std::vector<int>& instr, std::map<std::string, int>& regs, const std::map<std::string, int>& REGISTERS, std::array<int, 2048>& data_mem) {
 	int opcode = instr.at(0);
 	int operand1 = instr.at(1);
 	int operand2 = instr.at(2);
@@ -24,7 +23,7 @@ int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, cons
 
 	if (opcode == 1) {  // mov
 		// Определяем целевой регистр
-		string dest_reg;
+		std::string dest_reg;
 		for (const auto& reg : REGISTERS) {
 			if (reg.second == operand1) {
 				dest_reg = reg.first;
@@ -33,7 +32,7 @@ int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, cons
 		}
 
 		if (dest_reg.empty()) {
-			cerr << "Ошибка: неизвестный регистр для mov: " << operand1 << endl;
+			std::cerr << "Ошибка: неизвестный регистр для mov: " << operand1 << std::endl;
 			return -1;
 		}
 
@@ -42,7 +41,7 @@ int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, cons
 			regs[dest_reg] = 0;  // Записываем адрес начала data_memory
 		}
 		else if (operand2 >= 100 && operand2 < 170) {  // Косвенная адресация
-			string src_reg;
+			std::string src_reg;
 			for (const auto& reg : REGISTERS) {
 				if (reg.second == (operand2 - 100)) {
 					src_reg = reg.first;
@@ -50,7 +49,7 @@ int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, cons
 				}
 			}
 			if (src_reg.empty()) {
-				cerr << "Ошибка: неизвестный регистр для косвенной адресации: " << (operand2 - 100) << endl;
+				std::cerr << "Ошибка: неизвестный регистр для косвенной адресации: " << (operand2 - 100) << std::endl;
 				return -1;
 			}
 			regs[dest_reg] = data_mem[regs[src_reg]];  // Загружаем значение из памяти
@@ -59,7 +58,7 @@ int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, cons
 			regs[dest_reg] = operand2 - 170;  // Записываем непосредственное значение
 		}
 		else {  // Регистр
-			string src_reg;
+			std::string src_reg;
 			for (const auto& reg : REGISTERS) {
 				if (reg.second == operand2) {
 					src_reg = reg.first;
@@ -67,7 +66,7 @@ int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, cons
 				}
 			}
 			if (src_reg.empty()) {
-				cerr << "Ошибка: неизвестный регистр для mov: " << operand2 << endl;
+				std::cerr << "Ошибка: неизвестный регистр для mov: " << operand2 << std::endl;
 				return -1;
 			}
 			regs[dest_reg] = regs[src_reg];  // Копируем значение из другого регистра
@@ -78,7 +77,7 @@ int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, cons
 	{
 
 		// Определяем целевой регистр
-		string dest_reg;
+		std::string dest_reg;
 		for (const auto& reg : REGISTERS) {
 			if (reg.second == operand1) {
 				dest_reg = reg.first;
@@ -93,7 +92,7 @@ int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, cons
 		else
 		{
 			// Определяем второй регистр
-			string src1;
+			std::string src1;
 			for (const auto& reg : REGISTERS) {
 				if (reg.second == operand2) {
 					src1 = reg.first;
@@ -102,7 +101,7 @@ int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, cons
 			}
 
 			// Определяем третий регистр
-			string src2;
+			std::string src2;
 			for (const auto& reg : REGISTERS) {
 				if (reg.second == operand3) {
 					src2 = reg.first;
@@ -119,7 +118,7 @@ int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, cons
 	{
 
 		// Определяем целевой регистр
-		string dest_reg;
+		std::string dest_reg;
 		for (const auto& reg : REGISTERS) {
 			if (reg.second == operand1) {
 				dest_reg = reg.first;
@@ -128,7 +127,7 @@ int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, cons
 		}
 
 		// Определяем второй регистр
-		string src1;
+		std::string src1;
 		for (const auto& reg : REGISTERS) {
 			if (reg.second == operand2) {
 				src1 = reg.first;
@@ -144,7 +143,7 @@ int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, cons
 		{
 
 			// Определяем третий регистр
-			string src2;
+			std::string src2;
 			for (const auto& reg : REGISTERS) {
 				if (reg.second == operand3) {
 					src2 = reg.first;
@@ -163,7 +162,7 @@ int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, cons
 		regs["eflags"] = 2;
 
 		// Определяем второй регистр
-		string src1;
+		std::string src1;
 		for (const auto& reg : REGISTERS) {
 			if (reg.second == operand1) {
 				src1 = reg.first;
@@ -181,7 +180,7 @@ int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, cons
 		else
 		{
 			// Определяем третий регистр
-			string src2;
+			std::string src2;
 			for (const auto& reg : REGISTERS) {
 				if (reg.second == operand2) {
 					src2 = reg.first;
@@ -241,7 +240,7 @@ int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, cons
 	if (opcode == 8) //dec
 	{
 		// Определяем целевой регистр
-		string dest_reg;
+		std::string dest_reg;
 		for (const auto& reg : REGISTERS) {
 			if (reg.second == operand1) {
 				dest_reg = reg.first;
@@ -253,14 +252,14 @@ int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, cons
 
 	if (opcode == 9) //hlt 
 	{
-		cout << "Максимальный элемент:	" << regs["rdi"] << endl;
+		std::cout << "Максимальный элемент:	" << regs["rdi"] << std::endl;
 		exit(0);
 	}
 
 	if (opcode == 10) //load
 	{
 		// Определяем целевой регистр
-		string dest_reg;
+		std::string dest_reg;
 		for (const auto& reg : REGISTERS) {
 			if (reg.second == operand1) {
 				dest_reg = reg.first;
@@ -268,7 +267,7 @@ int execute_machine_instruction(vector<int>& instr, map<string, int>& regs, cons
 			}
 		}
 
-		string src_reg;
+		std::string src_reg;
 		for (const auto& reg : REGISTERS) {
 			if (reg.second == operand2 - 100) {
 				src_reg = reg.first;
@@ -291,7 +290,7 @@ int main()
 {
 	setlocale(LC_ALL, "ru");
 
-	array<int, 2048> data_mem = { 0 };
+	std::array<int, 2048> data_mem = { 0 };
 
 	int initial_data[] = { 10, 15, 21, 28, 29, 33, 88, 100, 47, 97, 99 };
 
@@ -302,12 +301,12 @@ int main()
 
 	for (auto elem : data_mem)
 	{
-		cout << elem << " ";
+		std::cout << elem << " ";
 	}
-	cout << endl << endl << endl;
+	std::cout << std::endl << std::endl << std::endl;
 
 
-	array<int, 2048> instruct_mem = { 0 };
+	std::array<int, 2048> instruct_mem = { 0 };
 
 	int initial_instructions[] = { 
 		1, 7, 0, 255,
@@ -340,10 +339,10 @@ int main()
 	}
 
 	for (int i = 0; i < instruct_mem.size(); ++i) {
-		cout<< instruct_mem[i]<<" ";
+		std::cout<< instruct_mem[i]<<" ";
 	}
 
-	map<string, int> REGISTERS;
+	std::map<std::string, int> REGISTERS;
 	REGISTERS["r0"] = 7;
 	REGISTERS["r1"] = 8;
 	REGISTERS["r2"] = 9;
@@ -355,7 +354,7 @@ int main()
 	REGISTERS["rcx"] = 15;
 	REGISTERS["rdi"] = 16;
 
-	map<string, int> regs = {
+	std::map<std::string, int> regs = {
 
 		{"r0", 0},		//Перед началом цикла хранит адрес начала данных в памяти data_memory ([0])
 		{"r1", 0},		//Перед началом цикла в него записывается первый эл-т массива - количество элементов в массиве  (10)
@@ -369,28 +368,28 @@ int main()
 
 	};
 
-	cout << endl << endl << endl;
+	std::cout << std::endl << std::endl << std::endl;
 
-	vector<string> order = { "r0", "r1", "r2", "r3", "rax", "rbx", "rcx", "rdi", "eflags" };
+	std::vector<std::string> order = { "r0", "r1", "r2", "r3", "rax", "rbx", "rcx", "rdi", "eflags" };
 
 	show_registers(regs, order);
 
-	cout << endl << endl;
+	std::cout << std::endl << std::endl;
 
 	int pc = 0;		//счетчик команд - регистр
 
-	vector<int> instruction;
+	std::vector<int> instruction;
 
 	while (pc < instruct_mem.size()) {
 		// Копируем первые 4 элемента
 		instruction.assign(instruct_mem.begin() + pc, instruct_mem.begin() + pc + 4);
 
 		// Выводим выполняемую команду
-		cout << "Выполняется команда: ";
+		std::cout << "Выполняется команда: ";
 		for (int elem : instruction) {
-			cout << elem << " ";
+			std::cout << elem << " ";
 		}
-		cout << endl;
+		std::cout << std::endl;
 
 		// Выполняем команду
 		int jump_to = execute_machine_instruction(instruction, regs, REGISTERS, data_mem);
@@ -399,7 +398,7 @@ int main()
 		show_registers(regs, order);
 
 		if (jump_to == -1) {
-			cerr << "Ошибка выполнения команды. Прерывание." << endl;
+			std::cerr << "Ошибка выполнения команды. Прерывание." << std::endl;
 			break;
 		}
 		else
@@ -415,13 +414,8 @@ int main()
 		}
 
 		// Выводим состояние pc
-		cout << "pc: " << pc << endl;
+		std::cout << "pc: " << pc << std::endl;
 	}
-
-
-
-
-
 
 
 	return 0;
