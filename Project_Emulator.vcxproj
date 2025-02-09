@@ -127,7 +127,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="execute_machine_instruction.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="show_registers.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="execute_machine_instruction.h" />
+    <ClInclude Include="show_registers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
